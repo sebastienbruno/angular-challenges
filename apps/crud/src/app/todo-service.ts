@@ -44,4 +44,16 @@ export class TodoService {
         ]);
       });
   }
+
+  delete(todo: Todo) {
+    this.http
+      .delete<Todo>(`https://jsonplaceholder.typicode.com/todos/${todo.id}`)
+      .subscribe(() => {
+        const indexToDelete = this._todos.findIndex((t) => t.id === todo.id);
+        this.todosSubject.next([
+          ...this._todos.slice(0, indexToDelete),
+          ...this._todos.slice(indexToDelete + 1),
+        ]);
+      });
+  }
 }

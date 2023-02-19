@@ -12,6 +12,7 @@ import { TodoService } from './todo-service';
     <div *ngFor="let todo of todos$ | async">
       {{ todo.title }}
       <button (click)="onUpdate(todo)">Update</button>
+      <button (click)="onDelete(todo)">Delete</button>
     </div>
   `,
   styles: [],
@@ -24,5 +25,9 @@ export class AppComponent {
 
   onUpdate(todo: Todo) {
     this.todoService.update(todo);
+  }
+
+  onDelete(todo: Todo) {
+    this.todoService.delete(todo);
   }
 }
