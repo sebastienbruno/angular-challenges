@@ -1,27 +1,46 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Todo } from './todo';
 import { TodoService } from './todo-service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatProgressSpinnerModule],
   selector: 'app-root',
   template: `
-    <div *ngFor="let todo of todos$ | async">
-      {{ todo.title }}
-      <button (click)="onUpdate(todo)">Update</button>
-      <button (click)="onDelete(todo)">Delete</button>
-    </div>
+    <mat-spinner
+      class="loading"
+      *ngIf="todoService.loading$ | async"></mat-spinner>
+    <ng-container *ngIf="todos$ | async as todos">
+      <div
+        *ngFor="let todo of todos"
+        [class.suspense]="todoService.loading$ | async">
+        {{ todo.title }}
+        <button (click)="onUpdate(todo)">Update</button>
+        <button (click)="onDelete(todo)">Delete</button>
+      </div>
+    </ng-container>
   `,
-  styles: [],
+  styles: [
+    `
+      .suspense {
+        opacity: 0.5;
+      }
+      .loading {
+        position: absolute;
+        top: 40px;
+        left: 40px;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  todos$: Observable<Todo[]> = this.todoService.todos$;
+  public todoService = inject(TodoService);
 
-  constructor(private todoService: TodoService) {}
+  todos$: Observable<Todo[]> = this.todoService.todos$;
 
   onUpdate(todo: Todo) {
     this.todoService.update(todo);
